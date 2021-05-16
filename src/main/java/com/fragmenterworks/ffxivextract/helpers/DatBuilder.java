@@ -145,8 +145,8 @@ public class DatBuilder {
             ByteBuffer sqpackHeaderBB = ByteBuffer.wrap(sqpackHeader);
             sqpackHeaderBB.order(endian);
 
-            int signature = 0x61507153;
-            int signature2 = 0x00006b63;
+            int signature = 0x4B504D53;
+            int signature2 = 0x00000000;
 
             sqpackHeaderBB.putInt(signature);
             sqpackHeaderBB.putInt(signature2);

@@ -140,7 +140,7 @@ class FileInjectorWindow extends JFrame {
         pnlCustomMusic.add(panel_7, BorderLayout.WEST);
         panel_7.setLayout(new BorderLayout(0, 0));
 
-        lblGenerateMessage = new JLabel("Generating a new custom dat may break already set indices. \r\nPlease go through the music list and reset anything flagged red.");
+        lblGenerateMessage = new JLabel("Generating a new custom dat may break already set indices. \r\nPlease go through the file list and reset anything flagged red.");
         lblGenerateMessage.setHorizontalAlignment(SwingConstants.CENTER);
         panel_7.add(lblGenerateMessage);
 
@@ -464,7 +464,7 @@ class FileInjectorWindow extends JFrame {
 
             @Override
             public boolean accept(File f) {
-                return f.getName().contains("index")
+                return f.getName().contains("idx")
                         || f.isDirectory();
             }
         };
@@ -777,8 +777,8 @@ class FileInjectorWindow extends JFrame {
             lref.readFully(buffer, 0, 6);
             bref.readFully(bigBuffer, 0, 6);
 
-            if (buffer[0] != 'S' || buffer[1] != 'q' || buffer[2] != 'P'
-                    || buffer[3] != 'a' || buffer[4] != 'c' || buffer[5] != 'k') {
+            if (buffer[0] != 'S' || buffer[1] != 'M' || buffer[2] != 'P'
+                    || buffer[3] != 'K') {
                 lref.close();
 
                 Utils.getGlobalLogger().error("SqPack magic was incorrect.");
