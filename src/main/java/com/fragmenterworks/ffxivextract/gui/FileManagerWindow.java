@@ -253,7 +253,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
 
                     @Override
                     public boolean accept(File f) {
-                        return f.getName().endsWith(".index") || f.isDirectory();
+                        return f.getName().endsWith(".idx") || f.isDirectory();
                     }
                 };
                 FileFilter filter2 = new FileFilter() {
@@ -265,7 +265,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
 
                     @Override
                     public boolean accept(File f) {
-                        return f.getName().endsWith(".index2") || f.isDirectory();
+                        return f.getName().endsWith(".idx2") || f.isDirectory();
                     }
                 };
                 fileChooser.addChoosableFileFilter(filter);

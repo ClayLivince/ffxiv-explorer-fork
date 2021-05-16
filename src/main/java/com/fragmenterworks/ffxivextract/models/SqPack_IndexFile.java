@@ -215,8 +215,8 @@ public class SqPack_IndexFile {
         ref.readFully(buffer, 0, 6);
         bref.readFully(bigBuffer, 0, 6);
 
-        if (buffer[0] != 'S' || buffer[1] != 'q' || buffer[2] != 'P'
-                || buffer[3] != 'a' || buffer[4] != 'c' || buffer[5] != 'k') {
+        if (buffer[0] != 'S' || buffer[1] != 'M' || buffer[2] != 'P'
+                || buffer[3] != 'K') {
             ref.close();
 
             Utils.getGlobalLogger().error("SqPack magic was incorrect.");
@@ -531,8 +531,8 @@ public class SqPack_IndexFile {
         int datNum = getDatNum(dataOffset);
         long realOffset = getOffsetInBytes(dataOffset);
 
-        pathToOpen = pathToOpen.replace("index2", "dat" + datNum);
-        pathToOpen = pathToOpen.replace("index", "dat" + datNum);
+        pathToOpen = pathToOpen.replace("idx2", "dat" + datNum);
+        pathToOpen = pathToOpen.replace("idx", "dat" + datNum);
 
         SqPack_DatFile datFile = new SqPack_DatFile(pathToOpen, endian);
         int contentType = datFile.getContentType(realOffset);
@@ -554,7 +554,7 @@ public class SqPack_IndexFile {
      * Extracts the file at the specified folder with the given filename.
      */
     public byte[] extractFile(String foldername, String filename) throws IOException {
-        if (getPath().contains("index2")) {
+        if (getPath().contains("idx2")) {
             String fullPath = foldername + "/" + filename;
             int hash = HashDatabase.computeCRC(fullPath.toLowerCase().getBytes(), 0, fullPath.getBytes().length);
             for (SqPack_File f : getPackFolders()[0].getFiles()) {
@@ -609,8 +609,8 @@ public class SqPack_IndexFile {
         int datNum = getDatNum(dataOffset);
         long realOffset = getOffsetInBytes(dataOffset);
 
-        pathToOpen = pathToOpen.replace("index2", "dat" + datNum);
-        pathToOpen = pathToOpen.replace("index", "dat" + datNum);
+        pathToOpen = pathToOpen.replace("idx2", "dat" + datNum);
+        pathToOpen = pathToOpen.replace("idx", "dat" + datNum);
 
         SqPack_DatFile datFile = new SqPack_DatFile(pathToOpen, endian);
         byte[] data = datFile.extractFile(realOffset, loadingDialog);
@@ -655,8 +655,8 @@ public class SqPack_IndexFile {
         String pathToOpen = path;
 
         //Get the correct data number
-        pathToOpen = pathToOpen.replace("index2", "dat" + datNum);
-        pathToOpen = pathToOpen.replace("index", "dat" + datNum);
+        pathToOpen = pathToOpen.replace("idx2", "dat" + datNum);
+        pathToOpen = pathToOpen.replace("idx", "dat" + datNum);
 
         SqPack_DatFile datFile = new SqPack_DatFile(pathToOpen, endian);
         Calendar timestamp = datFile.getTimeStamp();
