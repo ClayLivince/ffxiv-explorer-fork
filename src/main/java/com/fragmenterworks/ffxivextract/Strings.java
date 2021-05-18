@@ -74,6 +74,7 @@ public class Strings {
     public static final String MENUITEM_OUTFITTER = "Outfitter (Experimental)";
     public static final String MENUITEM_MUSICSWAPPER = "Music Swapper";
     public static final String MENUITEM_FILEINJECT = "File injector";
+    public static final String MENUITEM_XORTOOL = "Save XOR'd";
     public static final String MENUITEM_HASHCALC = "Path -> Hash Calculator";
     public static final String MENUITEM_CEDUMPIMPORT = "Import Cheat Engine path dump";
     public static final String MENUITEM_DBIMPORT = "Import Database";
@@ -88,6 +89,7 @@ public class Strings {
     public static final String MENUITEM_ABOUT = "About";
     public static final String MENUITEM_EXD_HEX_OPTION = "Show EX numbers as hex";
     public static final String MENUITEM_EXD_OFFSET_OPTION = "Sort EXD columns by offset";
+    public static final String MENUITEM_RAW_TEXT_OPTION = "Show \"Raw Text\" view";
 
     //Buttons
     public static final String BUTTONNAMES_BROWSE = "Browse";

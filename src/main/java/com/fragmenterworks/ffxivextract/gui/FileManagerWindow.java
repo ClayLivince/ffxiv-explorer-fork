@@ -42,6 +42,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
     private File lastOpenedIndexFile = null;
     private File lastSaveLocation = null;
     private SqPack_IndexFile currentIndexFile;
+    private byte[] currentDataBytes = null;
 
     //UI
     private SearchWindow searchWindow;
@@ -52,6 +53,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
     private final JLabel lblContentTypeValue;
     private final JLabel lblHashInfoValue;
     private final Hex_View hexView = new Hex_View(16);
+    private final Text_View textView = new Text_View();
     private EXDF_View exhfComponent;
     private final JProgressBar prgLoadingBar;
     private final JLabel lblLoadingBarString;
@@ -68,6 +70,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
     private JCheckBoxMenuItem options_enableUpdate;
     private JCheckBoxMenuItem options_showAsHex;
     private JCheckBoxMenuItem options_sortByOffset;
+    private JCheckBoxMenuItem options_rawTextView;
 
     public FileManagerWindow(String title) {
         addWindowListener(this);
@@ -120,7 +123,9 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
                 fileTree, defaultScrollPane);
         pnlContent.add(splitPane);
 
-        splitPane.setDividerLocation(150);
+        splitPane.setDividerLocation(180);
+
+        splitPane.getLeftComponent().setMinimumSize(new Dimension(179, 179));
 
         fileTree.addTreeSelectionListener(this);
 
@@ -228,6 +233,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
 
         setTitle(Constants.APPNAME);
         hexView.setBytes(null);
+        textView.setBytes(null);
         splitPane.setRightComponent(defaultScrollPane);
         file_Close.setEnabled(false);
         search_search.setEnabled(false);
@@ -418,6 +424,56 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
                 FileInjectorWindow swapper = new FileInjectorWindow();
                 swapper.setLocationRelativeTo(FileManagerWindow.this);
                 swapper.setVisible(true);
+            } else if (event.getActionCommand().equals("xortool")) {
+                int key = Integer.parseInt(JOptionPane.showInputDialog(FileManagerWindow.this, "XOR key?"), 16);
+                int off = Integer.parseInt(JOptionPane.showInputDialog(FileManagerWindow.this, "XOR offset?"), 16);
+
+                byte[] bCopy = currentDataBytes.clone();
+
+                for (int i = off; i < bCopy.length; i++)
+                {
+                    bCopy[i] = (byte) (bCopy[i] ^ key) ;
+                }
+
+                JFileChooser fileChooser = new JFileChooser(lastSaveLocation);
+
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+                FileFilter filter = new FileFilter() {
+
+                    @Override
+                    public String getDescription() {
+                        return "FFXIV RAW";
+                    }
+
+                    @Override
+                    public boolean accept(File f) {
+                        return !f.isDirectory();
+                    }
+                };
+                fileChooser.addChoosableFileFilter(filter);
+                fileChooser.setFileFilter(filter);
+                fileChooser.setAcceptAllFileFilterUsed(false);
+
+
+                int retunval = fileChooser.showSaveDialog(FileManagerWindow.this);
+
+                if (retunval == JFileChooser.APPROVE_OPTION) {
+                    lastSaveLocation = fileChooser.getSelectedFile();
+                    //lastSaveLocation.getParentFile().mkdirs();
+
+                    try (FileOutputStream fos = new FileOutputStream(lastSaveLocation)) {
+                        fos.write(bCopy);
+                        //fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
+                    } catch (IOException ex)
+                    {
+                        JOptionPane.showMessageDialog(
+                                FileManagerWindow.this,
+                                "Failure: " + ex.toString(),
+                                "Failure",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         }
     };
@@ -516,6 +572,9 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
         options_sortByOffset = new JCheckBoxMenuItem(Strings.MENUITEM_EXD_OFFSET_OPTION, false);
         options_sortByOffset.setActionCommand("options_sortByOffset");
 
+        options_rawTextView = new JCheckBoxMenuItem(Strings.MENUITEM_RAW_TEXT_OPTION, false);
+        options_rawTextView.setActionCommand("options_rawTextView");
+
         Preferences prefs = Preferences.userNodeForPackage(com.fragmenterworks.ffxivextract.Main.class);
         options_enableUpdate = new JCheckBoxMenuItem(Strings.MENUITEM_ENABLEUPDATE, prefs.getBoolean(Constants.PREF_DO_DB_UPDATE, false));
         options_enableUpdate.setActionCommand("options_update");
@@ -539,6 +598,10 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
         tools_fileinject.setActionCommand("fileinject");
         tools_fileinject.addActionListener(menuHandler);
 
+        JMenuItem tools_xortool = new JMenuItem(Strings.MENUITEM_XORTOOL);
+        tools_xortool.setActionCommand("xortool");
+        tools_xortool.addActionListener(menuHandler);
+
         file.add(file_Open);
         file.add(file_Close);
         file.addSeparator();
@@ -557,6 +620,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
         tools.add(tools_fileinject);
         tools.add(tools_macroEditor);
         tools.add(tools_logViewer);
+        tools.add(tools_xortool);
         tools.addSeparator();
         tools.add(tools_findexhs);
         tools.add(tools_findmusic);
@@ -570,6 +634,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
         options.add(options_enableUpdate);
         options.add(options_showAsHex);
         options.add(options_sortByOffset);
+        options.add(options_rawTextView);
 
         help.add(help_About);
 
@@ -652,6 +717,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
                 JLabel lblFNFError = new JLabel("This is currently a placeholder, there is no data here.");
                 tabs.addTab("No Data", lblFNFError);
                 hexView.setBytes(null);
+                textView.setBytes(null);
                 splitPane.setRightComponent(tabs);
                 return;
             }
@@ -662,6 +728,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
             JLabel lblFNFError = new JLabel("The dat for this file is missing!");
             tabs.addTab("Extract Error", lblFNFError);
             hexView.setBytes(null);
+            textView.setBytes(null);
             splitPane.setRightComponent(tabs);
             return;
         } catch (IOException e) {
@@ -669,6 +736,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
             JLabel lblLoadError = new JLabel("Something went terribly wrong extracting this file.");
             tabs.addTab("Extract Error", lblLoadError);
             hexView.setBytes(null);
+            textView.setBytes(null);
             splitPane.setRightComponent(tabs);
             return;
         }
@@ -690,6 +758,11 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
                 tabs.addTab("Error", lblLoadError);
                 hexView.setBytes(data);
                 tabs.addTab("Raw Hex", hexView);
+                if (options_rawTextView.getState())
+                {
+                    textView.setBytes(data);
+                    tabs.addTab("Raw Text", textView);
+                }
                 splitPane.setRightComponent(tabs);
                 return;
             }
@@ -701,6 +774,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
             JLabel lblLoadError = new JLabel("Something went terribly wrong extracting this file.");
             tabs.addTab("Extract Error", lblLoadError);
             hexView.setBytes(null);
+            textView.setBytes(null);
             splitPane.setRightComponent(tabs);
             return;
         }
@@ -779,9 +853,19 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
             tabs.addTab("CMP Viewer", cmpView);
         }
 
+        currentDataBytes = data;
+
         hexView.setBytes(data);
+
         //if (contentType != 3)
         tabs.addTab("Raw Hex", hexView);
+
+        if (options_rawTextView.getState())
+        {
+            textView.setBytes(data);
+            tabs.addTab("Raw Text", textView);
+        }
+
         splitPane.setRightComponent(tabs);
     }
 
