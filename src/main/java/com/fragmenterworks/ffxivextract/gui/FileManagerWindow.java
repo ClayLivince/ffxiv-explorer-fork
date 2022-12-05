@@ -890,7 +890,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
         return pout.toString();
     }
 
-    private String getExtension(int contentType, byte[] data) {
+    private String getExtension(int contentType, byte[] data, SqPack_File file) {
         if (data.length >= 4 && data[0] == 'E' && data[1] == 'X' && data[2] == 'D' && data[3] == 'F')
             return ".exd";
         else if (data.length >= 4 && data[0] == 'E' && data[1] == 'X' && data[2] == 'H' && data[3] == 'F')
@@ -911,7 +911,9 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
             return ".obj";
         } else if (contentType == 4) {
             return ".png";
-        } else
+        } else if (file.getName().endsWith("atex")) {
+            return ".png";
+        }
             return "";
     }
 
@@ -1001,7 +1003,7 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
                         continue;
 
                     int contentType = currentIndexFile.getContentType(files.get(i).getOffset());
-                    String extension = getExtension(contentType, data);
+                    String extension = getExtension(contentType, data, files.get(i));
 
                     if (doConvert) {
                         if (extension.equals(".exh")) {
@@ -1197,10 +1199,11 @@ public class FileManagerWindow extends JFrame implements TreeSelectionListener, 
                     }
 
                     if (dataToSave == null) {
-                        JOptionPane.showMessageDialog(FileManagerWindow.this,
-                                String.format("%X", files.get(i).getId()) + " could not be converted to " + extension.substring(1).toUpperCase() + ".",
-                                "Export Error",
-                                JOptionPane.ERROR_MESSAGE);
+
+                        //JOptionPane.showMessageDialog(FileManagerWindow.this,
+                        //        String.format("%X", files.get(i).getId()) + " could not be converted to " + extension.substring(1).toUpperCase() + ".",
+                        //        "Export Error",
+                        //        JOptionPane.ERROR_MESSAGE);
                         continue;
                     }
 
