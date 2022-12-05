@@ -116,7 +116,7 @@ public class Path_to_Hash_Window extends JFrame {
     private void commit() {
         boolean result = HashDatabase.addPathToDB(edtFullPath.getText(), currentIndex.getName());
         JOptionPane.showMessageDialog(this,
-                "The path was " + (result ? "successfully" : "unsuccessfully") + "added to the database.",
+                "The path was " + (result ? "successfully" : "unsuccessfully") + " added to the database.",
                 "File Open Error",
                 result ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
